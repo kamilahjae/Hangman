@@ -1,5 +1,3 @@
-load "colorize"
-require "colorize"
 
 class Hangman
   def initialize
@@ -7,6 +5,9 @@ class Hangman
     @body = ""
     @left_arm = ""
     @right_arm = ""
+    @left_leg = ""
+    @right_leg = ""
+    @secret = ["blah", "foo"].sample
   end
   def board
     "-------|\n   #[@head]   |\n  #[@left_arm]#[@body]#[@right_arm]  |\n  #[@left_leg]#[@right_leg]  |\n ------\n"
