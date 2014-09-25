@@ -6,80 +6,104 @@ class Hangman
     @head        =  " ".colorize(:white)
     @body        =  " ".colorize(:yellow)
     @left_arm    =  " ".colorize(:green)
+    @left_arm    =  "  ".colorize(:green)
     @right_arm   =  " ".colorize(:red)
     @left_leg    =  " ".colorize(:magenta)
     @right_leg   =  "  ".colorize(:light_blue)
-    @chances     =  7
-    @secret_word =  words[rand(words.length)].chomp
-    @solution    =  Array.new(mystery_word.length, "_")
-    @words       =
-    @prompt      =  "❖"
+    @chances     =  8
+    @prompt      =  "❖ "
     @guessed     =  []
-    [
-      marshmellow, ocean, umbrella, sunscreen, sunglasses,
-      fish, shark, lifeguard, swimsuit, sand, volleyball
+    @words       =  [
+      "marshmellow", "ocean", "umbrella", "sunscreen", "sunglasses",
+      "fish", "shark", "lifeguard", "swimsuit", "sand", "volleyball"
     ]
+    @secret_word =  @words.sample
+    @solution    =  Array.new(@secret_word.length, "_")
+
   end
 
   def board
     puts "|     _________"
     puts "|     |/      |"
-    puts "|     |      #{@head}"
-    puts "|     |  #{@left_arm}#{@body}#{@right_arm}"
+    puts "|     |    #{@head}"
+    puts "|     |    #{@left_arm}#{@body}#{@right_arm}"
     puts "|     |      #{@body}"
-    puts "|     |  #{@left_leg}#{@right_leg}"
+    puts "|     |    #{@left_leg} #{@right_leg}"
     puts "|     |      "
     puts "| ____|___   "
   end
 
   def progression
-    if @chances == 7
+    if @chances > 6
       puts "You are off to a great start!"
     elsif @chances == 6
-      puts @head << "(X X)"
+      @head << "(O O)"
     elsif @chances == 5
-      puts @body << "|"
+      @body << "|"
     elsif @chances == 4
-      puts @left_arm << "/"
+      @left_arm = " /"
     elsif @chances == 3
-      puts @right_arm << "\\"
+     @right_arm << "\\"
     elsif @chances == 2
-      puts @left_leg << "/"
+     @left_leg << "/"
     elsif @chances == 1
-      puts @right_leg << "\\"
+     @right_leg << "\\"
+   elsif @chances == 0
+     @head = "(X X)"
     end
+  end
+
+  def check_answer
+    if @solution.join == @secret_word
+      puts "You are safe!"
+      exit
+    end
+  end
 
   def run
-    puts board
     while @chances > 0
-      puts "You have #{@chances} left."
-      puts "Letters Guessed: #{guessed}"
-      puts @solution
-      print "Please guess a letter: " + @prompt
-      guess = gets.downcase.chomp.strip
+      joined_letters_from_solution_array = @solution.join
 
-      if guess == @secret_word.to_s
+      puts board
+
+      puts "You have #{@chances} left."
+      puts "Letters Guessed: #{@guessed}"
+      puts joined_letters_from_solution_array
+      print "Please guess a letter: " + @prompt
+      guess = gets.chomp.downcase.strip
+
+      if joined_letters_from_solution_array == @secret_word
         puts "You are safe!"
-        exit
+        break
       end
 
-      if @guessed.include(guess)
+      if @guessed.include?(guess)
         puts "You have already guessed that letter. Please try again."
         next
       elsif @secret_word.include?(guess)
         puts "Correct!"
-        @secret_word.each_index do |x|
+        split_word = @secret_word.chars
+        split_word.each_index do |x|
           if @secret_word[x] == guess
             @solution[x] = guess
           end
         end
+        check_answer
+      elsif @chances == 1 # This case is for last incorrect guess; end of game
+        progression
+        puts "You're hanged!"
+        puts board
+        exit
       else
         puts "Sorry, that's incorrect."
         @chances -= 1
+      progression
       end
+      @guessed << guess
     end
   end
-  guessed << guess
-  end
-run
 end
+
+
+h = Hangman.new
+h.run
